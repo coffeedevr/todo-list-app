@@ -5,12 +5,15 @@ module.exports = {
   entry: {
     index: './src/index.js',
     dom_interface: './src/dom_interface.js',
-    main_sections: './src/main_sections.js'
+    sections: './src/sections.js',
+    notes: './src/notes.js',
+    main_content: './src/main_content.js',
+    local_storage: './src/local_storage.js'
   },
   mode: 'development',
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Todo:// - A To-Do list Web App'
+      title: 'Todo:// - A Todo list Web App'
     })
   ],
   output: {

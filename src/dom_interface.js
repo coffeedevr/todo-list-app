@@ -9,8 +9,8 @@ const DOMInferface = (() => {
   }
   const createElement = (name, classname, idname) => {
     const element = document.createElement(`${name}`)
-    element.setAttribute('class', classname)
-    element.setAttribute('id', idname)
+    if (classname !== '') { element.setAttribute('class', classname) }
+    if (idname !== '') { element.setAttribute('id', idname) }
     return element
   }
   const createImgById = (name, src) => {
