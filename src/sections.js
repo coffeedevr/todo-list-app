@@ -68,7 +68,6 @@ function generateHomeList () {
 function generateProjList () {
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
-  console.log(projList)
 
   for (let i = 1; i < projNum; i++) {
     DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + (i + 1)))
@@ -77,6 +76,9 @@ function generateProjList () {
 }
 
 function showAddForm () {
+  const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
+  const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
+
   document.body.appendChild(DOMInterface.createElement('div', '', 'form-wrapper'))
   DOMInterface.insertToById('form-wrapper', DOMInterface.createElement('form', 'form-container', ''))
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('legend', 'form-row-1', 'form-legend'))
@@ -122,21 +124,36 @@ function showAddForm () {
   document.querySelector('#prio-option-2').setAttribute('value', 'Urgent')
   document.querySelector('#prio-option-2').textContent = 'Urgent'
 
+  // DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
+  // document.querySelector('#label-5').setAttribute('for', 'project')
+  // DOMInterface.insertTextContentById('label-5', 'Project:')
+  // DOMInterface.insertToById('label-5', DOMInterface.createElement('input', 'form-controls', 'project'))
+  // document.querySelector('#project').setAttribute('type', 'text')
+  // document.querySelector('#project').setAttribute('name', 'project')
+  // document.querySelector('#project').setAttribute('placeholder', 'Enter project...')
+
   DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
   document.querySelector('#label-5').setAttribute('for', 'project')
   DOMInterface.insertTextContentById('label-5', 'Project:')
-  DOMInterface.insertToById('label-5', DOMInterface.createElement('input', 'form-controls', 'project'))
-  document.querySelector('#project').setAttribute('type', 'text')
-  document.querySelector('#project').setAttribute('name', 'project')
-  document.querySelector('#project').setAttribute('placeholder', 'Enter project...')
+  DOMInterface.insertToById('label-5', DOMInterface.createElement('select', 'form-controls', 'project'))
+  document.querySelector('#priority').setAttribute('name', 'project')
+
+  console.log(projList)
+
+  for (let i = 0; i < projNum; i++) {
+    DOMInterface.insertToById('project', DOMInterface.createElement('option', '', 'option-' + i))
+    document.querySelector('#option-' + i).setAttribute('value', projList[i])
+    document.querySelector('#option-' + i).textContent = projList[i]
+  }
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-5', ''))
   DOMInterface.insertToByClass('form-row-5', DOMInterface.createElement('button', '', 'add-task-form-btn'))
   DOMInterface.insertTextContentById('add-task-form-btn', 'Add Task')
+  document.querySelector('#add-task-form-btn').addEventListener('click', addEvent)
 }
 
 function addEvent () {
-
+  Storage.makeNote('test', 'test', 'test', 'test', 'test', 'test')
 }
 
 function loadTasks () {}

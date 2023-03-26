@@ -177,7 +177,6 @@ input[type="text"] {
     font-size: 1.2rem;
     border: 0;
     border-bottom: 2px solid black;
-    padding: 0;
     outline: none;
     width: 100%;
     font-family: 'Gentium Book Plus', var(--system-ui);
@@ -193,6 +192,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     outline: none;
 }
 
+textarea::placeholder,
 input::placeholder {
     font-family: 'Bree Serif', var(--system-ui);
 }
@@ -259,6 +259,7 @@ label {
     height: 200px;
 }
 
+#project,
 #priority {
     font-size: 1.2rem;
     height: 2rem;
