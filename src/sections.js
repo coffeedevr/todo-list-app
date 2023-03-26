@@ -5,10 +5,11 @@ import Storage from './local_storage'
 export default function loadSections () {
   const projects = { proj_0: 'None' }
   const headerText = 'Todo://'
-  const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
+  const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
   const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | '
   const addProjText = 'Add a Project'
   const addProjImg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>tab-plus</title><path d="M3,3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3H3M3,5H13V9H21V19H3V5M10,10V13H7V15H10V18H12V15H15V13H12V10H10Z" /></svg>'
+  const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus-circle</title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
 
   if (localStorage.getItem('projects') === null) { localStorage.setItem('projects', JSON.stringify(projects)) }
 
@@ -21,6 +22,9 @@ export default function loadSections () {
   DOMInterface.insertToByClass('header-container', DOMInterface.createElement('div', 'header-title-wrapper', ''))
   DOMInterface.insertToByClass('header-title-wrapper', DOMInterface.createElement('h1', '', 'header-title-text'))
   DOMInterface.insertTextContentById('header-title-text', headerText)
+  document.querySelector('.header-title-wrapper').innerHTML += addNote
+
+  document.querySelector('#add-task-btn').addEventListener('click', showAddForm)
 
   DOMInterface.insertToByClass('footer-container', DOMInterface.createElement('p', '', 'footer-text'))
   DOMInterface.insertTextContentById('footer-text', footerText)
@@ -55,9 +59,9 @@ function generateHomeList () {
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>star-outline</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>']
 
   for (let i = 0; i < homeItems.length; i++) {
-    DOMInterface.insertToByClass('nav-home-list', DOMInterface.createElement('li', 'nav-home-list-item', 'home-item-' + i))
-    DOMInterface.insertTextContentById('home-item-' + i, homeItems[i])
-    document.getElementById('home-item-' + i).innerHTML += imglinks[i]
+    DOMInterface.insertToByClass('nav-home-list', DOMInterface.createElement('li', 'nav-home-list-item', 'home-item-' + (i + 1)))
+    DOMInterface.insertTextContentById('home-item-' + (i + 1), homeItems[i])
+    document.getElementById('home-item-' + (i + 1)).innerHTML += imglinks[i]
   }
 }
 
@@ -67,9 +71,72 @@ function generateProjList () {
   console.log(projList)
 
   for (let i = 1; i < projNum; i++) {
-    DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + i))
-    DOMInterface.insertTextContentById('proj-item-' + i, projList[i])
+    DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + (i + 1)))
+    DOMInterface.insertTextContentById('proj-item-' + (i + 1), projList[i])
   }
+}
+
+function showAddForm () {
+  document.body.appendChild(DOMInterface.createElement('div', '', 'form-wrapper'))
+  DOMInterface.insertToById('form-wrapper', DOMInterface.createElement('form', 'form-container', ''))
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('legend', 'form-row-1', 'form-legend'))
+  DOMInterface.insertTextContentById('form-legend', 'Add Task://')
+
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-2', ''))
+  DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-1'))
+  document.querySelector('#label-1').setAttribute('for', 'title')
+  DOMInterface.insertTextContentById('label-1', 'Title:')
+  DOMInterface.insertToById('label-1', DOMInterface.createElement('input', 'form-controls', 'title'))
+  document.querySelector('#title').setAttribute('type', 'text')
+  document.querySelector('#title').setAttribute('name', 'title')
+  document.querySelector('#title').setAttribute('placeholder', 'Enter title...')
+
+  DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-3'))
+  document.querySelector('#label-3').setAttribute('for', 'dueDate')
+  DOMInterface.insertTextContentById('label-3', 'Due Date:')
+  DOMInterface.insertToById('label-3', DOMInterface.createElement('input', 'form-controls', 'dueDate'))
+  document.querySelector('#dueDate').setAttribute('type', 'datetime-local')
+  document.querySelector('#dueDate').setAttribute('name', 'dueDate')
+
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-3', ''))
+  DOMInterface.insertToByClass('form-row-3', DOMInterface.createElement('label', '', 'label-2'))
+  document.querySelector('#label-2').setAttribute('for', 'description')
+  document.querySelector('#label-2').setAttribute('type', 'text')
+  DOMInterface.insertTextContentById('label-2', 'Description:')
+  DOMInterface.insertToById('label-2', DOMInterface.createElement('textarea', 'form-controls', 'description'))
+  document.querySelector('#description').setAttribute('name', 'description')
+  document.querySelector('#description').setAttribute('placeholder', 'Enter description...')
+  document.querySelector('#description').setAttribute('rows', '5')
+  document.querySelector('#description').setAttribute('cols', '20')
+
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-4', ''))
+  DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-4'))
+  document.querySelector('#label-4').setAttribute('for', 'priority')
+  DOMInterface.insertTextContentById('label-4', 'Priority:')
+  DOMInterface.insertToById('label-4', DOMInterface.createElement('select', 'form-controls', 'priority'))
+  document.querySelector('#priority').setAttribute('name', 'priority')
+  DOMInterface.insertToById('priority', DOMInterface.createElement('option', '', 'option-1'))
+  document.querySelector('#option-1').setAttribute('value', 'None')
+  document.querySelector('#option-1').textContent = 'None'
+  DOMInterface.insertToById('priority', DOMInterface.createElement('option', '', 'prio-option-2'))
+  document.querySelector('#prio-option-2').setAttribute('value', 'Urgent')
+  document.querySelector('#prio-option-2').textContent = 'Urgent'
+
+  DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
+  document.querySelector('#label-5').setAttribute('for', 'project')
+  DOMInterface.insertTextContentById('label-5', 'Project:')
+  DOMInterface.insertToById('label-5', DOMInterface.createElement('input', 'form-controls', 'project'))
+  document.querySelector('#project').setAttribute('type', 'text')
+  document.querySelector('#project').setAttribute('name', 'project')
+  document.querySelector('#project').setAttribute('placeholder', 'Enter project...')
+
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-5', ''))
+  DOMInterface.insertToByClass('form-row-5', DOMInterface.createElement('button', '', 'add-task-form-btn'))
+  DOMInterface.insertTextContentById('add-task-form-btn', 'Add Task')
+}
+
+function addEvent () {
+
 }
 
 function loadTasks () {}

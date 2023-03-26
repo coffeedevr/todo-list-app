@@ -6,7 +6,7 @@ module.exports = {
     index: './src/index.js',
     dom_interface: './src/dom_interface.js',
     sections: './src/sections.js',
-    notes: './src/notes.js',
+    tasks: './src/tasks.js',
     main_content: './src/main_content.js',
     local_storage: './src/local_storage.js'
   },
