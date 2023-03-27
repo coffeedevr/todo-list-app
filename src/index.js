@@ -1,5 +1,5 @@
-import loadSections from './sections.js'
-import makeNote from './tasks.js'
+import * as Sections from './sections.js'
+import TaskModule from './tasks'
 import './style.css'
 
-loadSections()
+Sections.loadSections()

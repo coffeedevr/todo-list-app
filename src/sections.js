@@ -1,6 +1,7 @@
 import DOMInterface from './dom_interface.js'
 import GitHubLogo from './assets/githublogo.png'
-import Storage from './local_storage'
+import TaskModule from './tasks.js'
+import { format, isBefore, parseISO } from 'date-fns'
 
 export default function loadSections () {
   const projects = { proj_0: 'None' }
@@ -75,7 +76,9 @@ function generateProjList () {
   }
 }
 
-function showAddForm () {
+function showAddForm (Event) {
+  Event.stopImmediatePropagation()
+
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
 
@@ -91,13 +94,17 @@ function showAddForm () {
   DOMInterface.insertToById('label-1', DOMInterface.createElement('input', 'form-controls', 'title'))
   document.querySelector('#title').setAttribute('type', 'text')
   document.querySelector('#title').setAttribute('name', 'title')
+  document.querySelector('#title').setAttribute('minLength', '3')
+  document.querySelector('#title').setAttribute('maxLength', '30')
   document.querySelector('#title').setAttribute('placeholder', 'Enter title...')
+  document.querySelector('#title').setAttribute('required', true)
 
   DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-3'))
   document.querySelector('#label-3').setAttribute('for', 'dueDate')
   DOMInterface.insertTextContentById('label-3', 'Due Date:')
   DOMInterface.insertToById('label-3', DOMInterface.createElement('input', 'form-controls', 'dueDate'))
-  document.querySelector('#dueDate').setAttribute('type', 'datetime-local')
+  document.querySelector('#dueDate').setAttribute('type', 'date')
+  document.querySelector('#dueDate').setAttribute('value', format(new Date(), 'yyyy-MM-dd'))
   document.querySelector('#dueDate').setAttribute('name', 'dueDate')
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-3', ''))
@@ -110,6 +117,7 @@ function showAddForm () {
   document.querySelector('#description').setAttribute('placeholder', 'Enter description...')
   document.querySelector('#description').setAttribute('rows', '5')
   document.querySelector('#description').setAttribute('cols', '20')
+  document.querySelector('#description').setAttribute('maxLength', '240')
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-4', ''))
   DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-4'))
@@ -124,21 +132,11 @@ function showAddForm () {
   document.querySelector('#prio-option-2').setAttribute('value', 'Urgent')
   document.querySelector('#prio-option-2').textContent = 'Urgent'
 
-  // DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
-  // document.querySelector('#label-5').setAttribute('for', 'project')
-  // DOMInterface.insertTextContentById('label-5', 'Project:')
-  // DOMInterface.insertToById('label-5', DOMInterface.createElement('input', 'form-controls', 'project'))
-  // document.querySelector('#project').setAttribute('type', 'text')
-  // document.querySelector('#project').setAttribute('name', 'project')
-  // document.querySelector('#project').setAttribute('placeholder', 'Enter project...')
-
   DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
   document.querySelector('#label-5').setAttribute('for', 'project')
   DOMInterface.insertTextContentById('label-5', 'Project:')
   DOMInterface.insertToById('label-5', DOMInterface.createElement('select', 'form-controls', 'project'))
   document.querySelector('#priority').setAttribute('name', 'project')
-
-  console.log(projList)
 
   for (let i = 0; i < projNum; i++) {
     DOMInterface.insertToById('project', DOMInterface.createElement('option', '', 'option-' + i))
@@ -149,14 +147,85 @@ function showAddForm () {
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-5', ''))
   DOMInterface.insertToByClass('form-row-5', DOMInterface.createElement('button', '', 'add-task-form-btn'))
   DOMInterface.insertTextContentById('add-task-form-btn', 'Add Task')
-  document.querySelector('#add-task-form-btn').addEventListener('click', addEvent)
+  document.querySelector('#add-task-form-btn').setAttribute('type', 'submit')
+  document.querySelector('#add-task-form-btn').addEventListener('click', validateForm)
+
+  const title = document.querySelector('#title')
+  const dueDate = document.querySelector('#dueDate')
+
+  title.addEventListener('input', () => {
+    if (title.validity.tooShort) {
+      title.setCustomValidity('Your title must comprise of 3 characters and up.')
+      title.reportValidity()
+    } else {
+      title.setCustomValidity('')
+    }
+  })
+
+  dueDate.addEventListener('input', () => {
+    const res = isBefore(parseISO(dueDate.value), parseISO(format(new Date(), 'yyyy-MM-dd')))
+    if (res === true) {
+      dueDate.setCustomValidity('Your due date must not be set before the current date.')
+      dueDate.reportValidity()
+    } else {
+      dueDate.setCustomValidity('')
+    }
+  })
 }
 
 function addEvent () {
-  Storage.makeNote('test', 'test', 'test', 'test', 'test', 'test')
+  const title = document.querySelector('#title')
+  const dueDate = document.querySelector('#dueDate')
+  const prio = document.querySelector('#priority')
+  const proj = document.querySelector('#project')
+  const desc = document.querySelector('#description')
+
+  TaskModule.createTask(title.value, desc.value, dueDate.value, prio.value, proj.value)
 }
 
-function loadTasks () {}
+function validateForm () {
+  const title = document.querySelector('#title')
+  const dueDate = document.querySelector('#dueDate')
+  const res = isBefore(parseISO(dueDate.value), parseISO(format(new Date(), 'yyyy-MM-dd')))
+
+  if (title.value.length < 3 || res === true) { return }
+  addEvent()
+}
+
+// function loadTask () {
+//   const taskLength = Object.keys({ ...localStorage })
+
+//   DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'notes-container', ''))
+
+//   if (taskLength.length <= 1) {
+//     DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('h1', '', 'no-notes-text'))
+//     DOMInterface.insertTextContentById('no-notes-text', 'You have no tasks today!')
+//   } else {
+//     for (let i = 0; i < taskLength.length; i++) {
+//       if (taskLength[i] !== 'projects') {
+//         const taskData = JSON.parse(localStorage.getItem(taskLength[i]))
+//         DOMInterface.insertToByClass('notes-container', DOMInterface.createElement('div', 'note-card', taskLength[i]))
+//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('h2', 'note-title', 'title-' + taskLength[i]))
+//         DOMInterface.insertTextContentById('title-' + taskLength[i], taskData.title)
+//         // DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-desc', 'desc-' + taskLength[i]))
+//         // DOMInterface.insertTextContentById('desc-' + taskLength[i], taskData.description)
+//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-due', 'due-' + taskLength[i]))
+//         DOMInterface.insertTextContentById('due-' + taskLength[i], taskData.dueDate)
+//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-prio', 'prio-' + taskLength[i]))
+//         DOMInterface.insertTextContentById('prio-' + taskLength[i], taskData.priority)
+//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-proj', 'proj-' + taskLength[i]))
+//         DOMInterface.insertTextContentById('proj-' + taskLength[i], taskData.project)
+//       }
+//     }
+//   }
+// }
+
+const FormValidator = (() => {
+
+})()
+
 function loadToday () {}
 function loadUrgent () {}
 function loadProjects () {}
+
+export { loadSections }
