@@ -1,6 +1,8 @@
+/* eslint-disable prefer-const */
 import DOMInterface from './dom_interface.js'
 import GitHubLogo from './assets/githublogo.png'
 import TaskModule from './tasks.js'
+import Storage from './local_storage.js'
 import { format, isBefore, parseISO } from 'date-fns'
 
 export default function loadSections () {
@@ -8,9 +10,8 @@ export default function loadSections () {
   const headerText = 'Todo://'
   const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
   const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | '
-  const addProjText = 'Add a Project'
-  const addProjImg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>tab-plus</title><path d="M3,3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3H3M3,5H13V9H21V19H3V5M10,10V13H7V15H10V18H12V15H15V13H12V10H10Z" /></svg>'
-  const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus-circle</title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
+  const addProjImg = '<svg id="add-proj-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M3,3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3H3M3,5H13V9H21V19H3V5M10,10V13H7V15H10V18H12V15H15V13H12V10H10Z" /></svg>'
+  const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
 
   if (localStorage.getItem('projects') === null) { localStorage.setItem('projects', JSON.stringify(projects)) }
 
@@ -38,14 +39,13 @@ export default function loadSections () {
   DOMInterface.insertToByClass('home-nav', DOMInterface.createElement('ul', 'nav-home-list', ''))
   generateHomeList()
   DOMInterface.insertToByClass('proj-nav-wrapper', DOMInterface.createElement('div', 'proj-nav', ''))
-  DOMInterface.insertToByClass('proj-nav', DOMInterface.createElement('h1', '', 'proj-title-text'))
+  DOMInterface.insertToByClass('proj-nav', DOMInterface.createElement('div', '', 'proj-nav-title'))
+  DOMInterface.insertToById('proj-nav-title', DOMInterface.createElement('h1', '', 'proj-title-text'))
   DOMInterface.insertToByClass('proj-nav', DOMInterface.createElement('ul', 'nav-proj-list', ''))
   if (Object.keys(JSON.parse(localStorage.getItem('projects'))).length > 1) { generateProjList() }
   DOMInterface.insertTextContentById('home-title-text', 'Home')
-  DOMInterface.insertTextContentById('proj-title-text', 'Projects')
-  DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'add-proj'))
-  DOMInterface.insertTextContentById('add-proj', addProjText)
-  document.getElementById('add-proj').innerHTML += addProjImg
+  DOMInterface.insertTextContentById('proj-nav-title', 'Projects')
+  document.querySelector('#proj-nav-title').innerHTML += addProjImg
 
   DOMInterface.insertToByClass('content-container', DOMInterface.createElement('div', 'notes-wrapper', ''))
   DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'container-header-wrapper', ''))
@@ -55,15 +55,20 @@ export default function loadSections () {
 
 function generateHomeList () {
   const homeItems = ['Tasks', 'Today', 'Urgent']
-  const imglinks = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>clipboard-list-outline</title><path d="M19 3H14.82C14.4 1.84 13.3 1 12 1S9.6 1.84 9.18 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M12 3C12.55 3 13 3.45 13 4S12.55 5 12 5 11 4.55 11 4 11.45 3 12 3M7 7H17V5H19V19H5V5H7V7M12 17V15H17V17H12M12 11V9H17V11H12M8 12V9H7V8H9V12H8M9.25 14C9.66 14 10 14.34 10 14.75C10 14.95 9.92 15.14 9.79 15.27L8.12 17H10V18H7V17.08L9 15H7V14H9.25" /></svg>',
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>calendar-account-outline</title><path d="M19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.11 3.9 21 5 21H19C20.11 21 21 20.11 21 19V5C21 3.9 20.11 3 19 3M19 19H5V9H19V19M19 7H5V5H19M12 10C14 10 15 12.42 13.59 13.84C12.17 15.26 9.75 14.25 9.75 12.25C9.75 11 10.75 10 12 10M16.5 17.88V18H7.5V17.88C7.5 16.63 9.5 15.63 12 15.63S16.5 16.63 16.5 17.88Z" /></svg>',
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>star-outline</title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>']
+  const imglinks = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M19 3H14.82C14.4 1.84 13.3 1 12 1S9.6 1.84 9.18 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M12 3C12.55 3 13 3.45 13 4S12.55 5 12 5 11 4.55 11 4 11.45 3 12 3M7 7H17V5H19V19H5V5H7V7M12 17V15H17V17H12M12 11V9H17V11H12M8 12V9H7V8H9V12H8M9.25 14C9.66 14 10 14.34 10 14.75C10 14.95 9.92 15.14 9.79 15.27L8.12 17H10V18H7V17.08L9 15H7V14H9.25" /></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M19 3H18V1H16V3H8V1H6V3H5C3.9 3 3 3.9 3 5V19C3 20.11 3.9 21 5 21H19C20.11 21 21 20.11 21 19V5C21 3.9 20.11 3 19 3M19 19H5V9H19V19M19 7H5V5H19M12 10C14 10 15 12.42 13.59 13.84C12.17 15.26 9.75 14.25 9.75 12.25C9.75 11 10.75 10 12 10M16.5 17.88V18H7.5V17.88C7.5 16.63 9.5 15.63 12 15.63S16.5 16.63 16.5 17.88Z" /></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M12,15.39L8.24,17.66L9.23,13.38L5.91,10.5L10.29,10.13L12,6.09L13.71,10.13L18.09,10.5L14.77,13.38L15.76,17.66M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97L22,9.24Z" /></svg>']
 
   for (let i = 0; i < homeItems.length; i++) {
     DOMInterface.insertToByClass('nav-home-list', DOMInterface.createElement('li', 'nav-home-list-item', 'home-item-' + (i + 1)))
     DOMInterface.insertTextContentById('home-item-' + (i + 1), homeItems[i])
     document.getElementById('home-item-' + (i + 1)).innerHTML += imglinks[i]
   }
+
+  const lists = document.querySelectorAll('.nav-home-list-item')
+  lists.forEach(item => {
+    item.addEventListener('click', loadTasks)
+  })
 }
 
 function generateProjList () {
@@ -74,6 +79,11 @@ function generateProjList () {
     DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + (i + 1)))
     DOMInterface.insertTextContentById('proj-item-' + (i + 1), projList[i])
   }
+
+  const lists = document.querySelectorAll('.nav-proj-list-item')
+  lists.forEach(item => {
+    item.addEventListener('click', loadTasks)
+  })
 }
 
 function showAddForm (Event) {
@@ -81,11 +91,13 @@ function showAddForm (Event) {
 
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
+  const rmvBtn = '<svg id="close-form-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close-circle</title><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z" /></svg>'
 
   document.body.appendChild(DOMInterface.createElement('div', '', 'form-wrapper'))
   DOMInterface.insertToById('form-wrapper', DOMInterface.createElement('form', 'form-container', ''))
-  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('legend', 'form-row-1', 'form-legend'))
-  DOMInterface.insertTextContentById('form-legend', 'Add Task://')
+  DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-1', 'form-title'))
+  DOMInterface.insertTextContentById('form-title', 'Add Task://')
+  document.querySelector('#form-title').innerHTML += rmvBtn
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-2', ''))
   DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-1'))
@@ -149,6 +161,7 @@ function showAddForm (Event) {
   DOMInterface.insertTextContentById('add-task-form-btn', 'Add Task')
   document.querySelector('#add-task-form-btn').setAttribute('type', 'submit')
   document.querySelector('#add-task-form-btn').addEventListener('click', validateForm)
+  document.querySelector('#close-form-btn').addEventListener('click', closeForm)
 
   const title = document.querySelector('#title')
   const dueDate = document.querySelector('#dueDate')
@@ -173,7 +186,20 @@ function showAddForm (Event) {
   })
 }
 
-function addEvent () {
+function closeForm () {
+  document.body.removeChild(document.body.lastChild)
+}
+
+function validateForm () {
+  const title = document.querySelector('#title')
+  const dueDate = document.querySelector('#dueDate')
+  const res = isBefore(parseISO(dueDate.value), parseISO(format(new Date(), 'yyyy-MM-dd')))
+
+  if (title.value.length < 3 || res === true) { return }
+  addTaskEvent()
+}
+
+function addTaskEvent () {
   const title = document.querySelector('#title')
   const dueDate = document.querySelector('#dueDate')
   const prio = document.querySelector('#priority')
@@ -183,49 +209,65 @@ function addEvent () {
   TaskModule.createTask(title.value, desc.value, dueDate.value, prio.value, proj.value)
 }
 
-function validateForm () {
-  const title = document.querySelector('#title')
-  const dueDate = document.querySelector('#dueDate')
-  const res = isBefore(parseISO(dueDate.value), parseISO(format(new Date(), 'yyyy-MM-dd')))
+function loadTasks (event) {
+  const text = event.target.textContent
+  const element = document.querySelector('.notes-wrapper')
+  setActiveCategory(event.target.id)
 
-  if (title.value.length < 3 || res === true) { return }
-  addEvent()
+  switch (text) {
+    case 'Tasks':
+      element.removeChild(element.lastElementChild)
+      createTasksDOM(TaskModule.retrieveTasks())
+      break
+    case 'Today':
+      element.removeChild(element.lastElementChild)
+      createTasksDOM(TaskModule.retrieveTasksDueToday())
+      break
+    case 'Urgent':
+      element.removeChild(element.lastElementChild)
+      createTasksDOM(TaskModule.retrieveTasksUrgent())
+      break
+    default:
+      createTasksDOM(TaskModule.retrieveTasksByProj(text))
+  }
 }
 
-// function loadTask () {
-//   const taskLength = Object.keys({ ...localStorage })
+function setActiveCategory (id) {
+  const removeElement = document.querySelector('.selected')
+  const addElement = document.getElementById(id)
+  removeElement.classList.toggle('selected')
+  addElement.classList.toggle('selected')
+}
 
-//   DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'notes-container', ''))
+function createTasksDOM (tasks) {
+  DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'notes-container', ''))
+  if (tasks === 'undefined') { return }
 
-//   if (taskLength.length <= 1) {
-//     DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('h1', '', 'no-notes-text'))
-//     DOMInterface.insertTextContentById('no-notes-text', 'You have no tasks today!')
-//   } else {
-//     for (let i = 0; i < taskLength.length; i++) {
-//       if (taskLength[i] !== 'projects') {
-//         const taskData = JSON.parse(localStorage.getItem(taskLength[i]))
-//         DOMInterface.insertToByClass('notes-container', DOMInterface.createElement('div', 'note-card', taskLength[i]))
-//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('h2', 'note-title', 'title-' + taskLength[i]))
-//         DOMInterface.insertTextContentById('title-' + taskLength[i], taskData.title)
-//         // DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-desc', 'desc-' + taskLength[i]))
-//         // DOMInterface.insertTextContentById('desc-' + taskLength[i], taskData.description)
-//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-due', 'due-' + taskLength[i]))
-//         DOMInterface.insertTextContentById('due-' + taskLength[i], taskData.dueDate)
-//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-prio', 'prio-' + taskLength[i]))
-//         DOMInterface.insertTextContentById('prio-' + taskLength[i], taskData.priority)
-//         DOMInterface.insertToById(taskLength[i], DOMInterface.createElement('p', 'note-proj', 'proj-' + taskLength[i]))
-//         DOMInterface.insertTextContentById('proj-' + taskLength[i], taskData.project)
-//       }
-//     }
-//   }
-// }
+  for (let obj in tasks) {
+    if (obj === 'projects') { continue }
+    DOMInterface.insertToByClass('notes-container', DOMInterface.createElement('div', 'tasks-card', obj))
+    Storage.getNote(obj).priority === 'Urgent'
+      ? document.querySelector('#' + obj).classList.toggle('priority')
+      : document.querySelector('#' + obj).classList.toggle('not-urgent')
+    DOMInterface.insertToById(obj, DOMInterface.createElement('input', '', obj + '-check'))
+    document.getElementById(obj + '-check').setAttribute('type', 'checkbox')
+    document.getElementById(obj + '-check').addEventListener('click', crossNote)
+    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-title', obj + '-title-text'))
+    DOMInterface.insertTextContentById(obj + '-title-text', Storage.getNote(obj).title)
+    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-due', obj + '-due-text'))
+    DOMInterface.insertTextContentById(obj + '-due-text', Storage.getNote(obj).dueDate)
+    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-prio', obj + '-prio-text'))
+  }
+}
 
-const FormValidator = (() => {
+function crossNote (event) {
+  document.getElementById(event.target.parentNode.id).classList.toggle('crossed')
+}
 
-})()
+function defaultTasks () {
+  const addElement = document.getElementById('home-item-1')
+  addElement.classList.toggle('selected')
+  createTasksDOM(TaskModule.retrieveTasks())
+}
 
-function loadToday () {}
-function loadUrgent () {}
-function loadProjects () {}
-
-export { loadSections }
+export { defaultTasks, loadTasks, loadSections }

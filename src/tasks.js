@@ -23,12 +23,12 @@ const TaskModule = (() => {
   }
 
   const retrieveTasks = () => {
-    return JSON.parse({ ...localStorage })
+    return { ...localStorage }
   }
 
   const retrieveTasksUrgent = () => {
     const tasks = { ...localStorage }
-    if (Object.keys(tasks).length < 1) { return 'You have no urgent tasks!' }
+    if (Object.keys(tasks).length < 1) { return }
 
     // eslint-disable-next-line prefer-const
     let list = []
@@ -36,12 +36,14 @@ const TaskModule = (() => {
       if (JSON.parse(localStorage.getItem(Object.keys(tasks)[i])).priority !== 'Urgent') { continue }
       list[`${Object.keys(tasks)[i]}`] = `${localStorage.getItem(Object.keys(tasks)[i])}`
     }
+
+    if (Object.keys(list).length < 1) { return }
     return list
   }
 
   const retrieveTasksByProj = (project) => {
     const tasks = { ...localStorage }
-    if (Object.keys(tasks).length < 1) { return 'You have no urgent tasks!' }
+    if (Object.keys(tasks).length < 1) { return }
 
     // eslint-disable-next-line prefer-const
     let list = []
@@ -62,7 +64,7 @@ const TaskModule = (() => {
 
   const retrieveTasksDueToday = () => {
     const tasks = { ...localStorage }
-    if (Object.keys(tasks).length < 1) { return 'You have no tasks due today!' }
+    if (Object.keys(tasks).length < 1) { return }
 
     // eslint-disable-next-line prefer-const
     let list = []
@@ -74,7 +76,8 @@ const TaskModule = (() => {
       if (b !== 0) { continue }
       list[`${Object.keys(tasks)[i]}`] = `${localStorage.getItem(Object.keys(tasks)[i])}`
     }
-    if (Object.keys(list).length < 1) { return 'You have no tasks due today!' }
+
+    if (Object.keys(list).length < 1) { return }
     return list
   }
 
