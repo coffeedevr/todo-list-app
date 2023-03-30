@@ -10,7 +10,7 @@ export default function loadSections () {
   const counter = 0
   const headerText = 'Todo://'
   const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
-  const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | '
+  const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | Icons by '
   const addProjImg = '<svg id="add-proj-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M3,3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3H3M3,5H13V9H21V19H3V5M10,10V13H7V15H10V18H12V15H15V13H12V10H10Z" /></svg>'
   const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
 
@@ -324,10 +324,11 @@ function createTasksDOM (tasks) {
     DOMInterface.insertTextContentById(taskList[obj] + '-due-text', Storage.getNote(taskList[obj]).dueDate)
     DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('div', 'notes-control-wrapper', taskList[obj] + '-control-wrapper'))
     DOMInterface.insertToById(taskList[obj] + '-control-wrapper', DOMInterface.createElement('button', 'edit-btn', 'edit-' + taskList[obj]))
-    document.querySelector('#' + 'edit-' + taskList[obj]).addEventListener('click', editTask)
     DOMInterface.insertToById(taskList[obj] + '-control-wrapper', DOMInterface.createElement('button', 'del-btn', 'del-' + taskList[obj]))
     document.querySelector('#' + 'del-' + taskList[obj]).addEventListener('click', deleteTask)
     document.querySelector('#' + 'edit-' + taskList[obj]).addEventListener('click', (event) => showAddForm(taskList[obj], event))
+    document.querySelector('#' + taskList[obj] + '-title-text').addEventListener('mouseover', showDesc)
+    document.querySelector('#' + taskList[obj] + '-title-text').addEventListener('mouseout', showTitle)
     loadCheckBox(Storage.getNote(taskList[obj]), taskList[obj])
   }
 }
@@ -338,8 +339,39 @@ function deleteTask (event) {
   Storage.deleteNote(elementId.id)
 }
 
-function editTask (event) {
-  const elementId = event.target.parentNode.parentNode
+function showTitle (event) {
+  const parentId = event.target.parentNode.id
+  const task = Storage.getNote(parentId)
+
+  const element = document.getElementById(event.target.id)
+  const check = document.getElementById(parentId + '-check')
+  const prioText = document.getElementById(parentId + '-prio-text')
+  const dueText = document.getElementById(parentId + '-due-text')
+  const control = document.getElementById(parentId + '-control-wrapper')
+
+  console.log(dueText)
+  element.textContent = task.title
+  prioText.classList.toggle('hide')
+  dueText.classList.toggle('hide')
+  control.classList.toggle('hide')
+  check.classList.toggle('hide')
+}
+
+function showDesc (event) {
+  const parentId = event.target.parentNode.id
+  const task = Storage.getNote(parentId)
+
+  const element = document.getElementById(event.target.id)
+  const check = document.getElementById(parentId + '-check')
+  const prioText = document.getElementById(parentId + '-prio-text')
+  const dueText = document.getElementById(parentId + '-due-text')
+  const control = document.getElementById(parentId + '-control-wrapper')
+
+  element.textContent = task.description
+  prioText.classList.toggle('hide')
+  dueText.classList.toggle('hide')
+  control.classList.toggle('hide')
+  check.classList.toggle('hide')
 }
 
 function crossTask (event) {
