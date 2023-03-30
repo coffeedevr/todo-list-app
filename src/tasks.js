@@ -1,7 +1,5 @@
 import Storage from './local_storage.js'
-import { format, parseISO, compareAsc } from 'date-fns'
-
-const noteCount = localStorage.length
+import { format, parseISO, compareAsc, differenceInDays } from 'date-fns'
 
 function Task (title, description, dueDate, priority, project) {
   this.title = title
@@ -9,13 +7,15 @@ function Task (title, description, dueDate, priority, project) {
   this.dueDate = dueDate
   this.priority = priority
   this.project = project
+  this.check = false
 }
 
 const TaskModule = (() => {
   const createTask = (title, description, dueDate, priority, project) => {
-    // const a = format(dueDate, 'yyyy-MM-dd')
+    const count = JSON.parse(localStorage.getItem('counter')) + 1
     const note = new Task(title, description, dueDate, priority, project)
-    Storage.makeNote('note' + noteCount, note)
+    localStorage.setItem('counter', count)
+    Storage.makeNote('note' + count, note)
   }
 
   const getTask = (key) => {
@@ -37,7 +37,7 @@ const TaskModule = (() => {
       list[`${Object.keys(tasks)[i]}`] = `${localStorage.getItem(Object.keys(tasks)[i])}`
     }
 
-    if (Object.keys(list).length < 1) { return }
+    if (Object.keys(list).length < 1) { return list }
     return list
   }
 
@@ -56,10 +56,12 @@ const TaskModule = (() => {
 
   const getTaskDue = (date) => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const result = compareAsc(today, date)
-
-    if (result !== 0) { return 'In progress' }
-    return 'Due Today'
+    const result = compareAsc(parseISO(today), parseISO(date))
+    return result === 0
+      ? 'Due Today'
+      : result === -1
+        ? 'in ' + differenceInDays(parseISO(date), parseISO(today)) + ' days'
+        : differenceInDays(parseISO(today), parseISO(date)) + ' days ago'
   }
 
   const retrieveTasksDueToday = () => {
@@ -77,11 +79,11 @@ const TaskModule = (() => {
       list[`${Object.keys(tasks)[i]}`] = `${localStorage.getItem(Object.keys(tasks)[i])}`
     }
 
-    if (Object.keys(list).length < 1) { return }
+    if (Object.keys(list).length < 1) { return list }
     return list
   }
 
-  return { createTask, getTask, retrieveTasks, retrieveTasksUrgent, retrieveTasksByProj, retrieveTasksDueToday }
+  return { createTask, getTask, retrieveTasks, retrieveTasksUrgent, retrieveTasksByProj, retrieveTasksDueToday, getTaskDue }
 })()
 
 export { TaskModule as default }

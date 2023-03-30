@@ -7,6 +7,7 @@ import { format, isBefore, parseISO } from 'date-fns'
 
 export default function loadSections () {
   const projects = { proj_0: 'None' }
+  const counter = 0
   const headerText = 'Todo://'
   const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
   const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | '
@@ -14,6 +15,7 @@ export default function loadSections () {
   const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
 
   if (localStorage.getItem('projects') === null) { localStorage.setItem('projects', JSON.stringify(projects)) }
+  if (localStorage.getItem('counter') === null) { localStorage.setItem('counter', JSON.stringify(counter)) }
 
   document.getElementsByTagName('head')[0].innerHTML += importFont
 
@@ -241,27 +243,69 @@ function setActiveCategory (id) {
 
 function createTasksDOM (tasks) {
   DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'notes-container', ''))
-  if (tasks === 'undefined') { return }
 
-  for (let obj in tasks) {
-    if (obj === 'projects') { continue }
-    DOMInterface.insertToByClass('notes-container', DOMInterface.createElement('div', 'tasks-card', obj))
-    Storage.getNote(obj).priority === 'Urgent'
-      ? document.querySelector('#' + obj).classList.toggle('priority')
-      : document.querySelector('#' + obj).classList.toggle('not-urgent')
-    DOMInterface.insertToById(obj, DOMInterface.createElement('input', '', obj + '-check'))
-    document.getElementById(obj + '-check').setAttribute('type', 'checkbox')
-    document.getElementById(obj + '-check').addEventListener('click', crossNote)
-    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-title', obj + '-title-text'))
-    DOMInterface.insertTextContentById(obj + '-title-text', Storage.getNote(obj).title)
-    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-due', obj + '-due-text'))
-    DOMInterface.insertTextContentById(obj + '-due-text', Storage.getNote(obj).dueDate)
-    DOMInterface.insertToById(obj, DOMInterface.createElement('p', 'tasks-prio', obj + '-prio-text'))
+  if (tasks === 'undefined') { return }
+  let taskList = Object.keys(tasks).sort()
+
+  for (let obj = 0; obj < taskList.length; obj++) {
+    if (taskList[obj] === 'projects') { continue }
+    if (taskList[obj] === 'counter') { continue }
+    DOMInterface.insertToByClass('notes-container', DOMInterface.createElement('div', 'tasks-card', taskList[obj]))
+    if (Storage.getNote(taskList[obj]).check === true) { document.querySelector('#' + taskList[obj]).classList.toggle('crossed') }
+    Storage.getNote(taskList[obj]).priority === 'Urgent'
+      ? document.querySelector('#' + taskList[obj]).classList.toggle('priority')
+      : document.querySelector('#' + taskList[obj]).classList.toggle('not-urgent')
+    DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('input', '', taskList[obj] + '-check'))
+    document.getElementById(taskList[obj] + '-check').setAttribute('type', 'checkbox')
+    document.getElementById(taskList[obj] + '-check').addEventListener('click', crossTask)
+    DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('p', 'tasks-title', taskList[obj] + '-title-text'))
+    DOMInterface.insertTextContentById(taskList[obj] + '-title-text', Storage.getNote(taskList[obj]).title)
+    DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('p', 'tasks-prio', taskList[obj] + '-prio-text'))
+    DOMInterface.insertTextContentById(taskList[obj] + '-prio-text', TaskModule.getTaskDue(Storage.getNote(taskList[obj]).dueDate))
+    DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('p', 'tasks-due', taskList[obj] + '-due-text'))
+    DOMInterface.insertTextContentById(taskList[obj] + '-due-text', Storage.getNote(taskList[obj]).dueDate)
+    DOMInterface.insertToById(taskList[obj], DOMInterface.createElement('div', 'notes-control-wrapper', taskList[obj] + '-control-wrapper'))
+    DOMInterface.insertToById(taskList[obj] + '-control-wrapper', DOMInterface.createElement('button', 'edit-btn', 'edit-' + taskList[obj]))
+    document.querySelector('#' + 'edit-' + taskList[obj]).addEventListener('click', editTask)
+    DOMInterface.insertToById(taskList[obj] + '-control-wrapper', DOMInterface.createElement('button', 'del-btn', 'del-' + taskList[obj]))
+    document.querySelector('#' + 'del-' + taskList[obj]).addEventListener('click', deleteTask)
+    loadCheckBox(Storage.getNote(taskList[obj]), taskList[obj])
   }
 }
 
-function crossNote (event) {
-  document.getElementById(event.target.parentNode.id).classList.toggle('crossed')
+function deleteTask (event) {
+  const elementId = event.target.parentNode.parentNode
+  elementId.parentNode.removeChild(elementId)
+  Storage.deleteNote(elementId.id)
+}
+
+function editTask (event) {
+  const elementId = event.target.parentNode.parentNode
+  console.log(event)
+}
+
+function crossTask (event) {
+  const elementId = event.target.parentNode.id
+  const element = document.getElementById(elementId)
+  const object = Storage.getNote(elementId)
+  element.classList.toggle('crossed')
+  loadCheckClick(object, elementId)
+}
+
+function loadCheckClick (object, elementId) {
+  if (object.check === true) {
+    object.check = false
+    Storage.makeNote(elementId, object)
+    document.querySelector('#' + elementId + ' > input').checked = false
+  } else {
+    object.check = true
+    Storage.makeNote(elementId, object)
+    document.querySelector('#' + elementId + ' > input').checked = true
+  }
+}
+
+function loadCheckBox (object, elementId) {
+  object.check === true ? document.querySelector('#' + elementId + ' > input').checked = true : document.querySelector('#' + elementId + ' > input').checked = false
 }
 
 function defaultTasks () {
