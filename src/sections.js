@@ -77,11 +77,19 @@ function generateHomeList () {
 
 function generateProjList () {
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
+  const projKeys = Object.keys(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
 
   for (let i = 0; i < projNum; i++) {
-    DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + (i + 1)))
-    DOMInterface.insertTextContentById('proj-item-' + (i + 1), projList[i])
+    DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', projKeys[i]))
+    DOMInterface.insertTextContentById(projKeys[i], projList[i])
+    if (projList[i] !== 'None') {
+      DOMInterface.insertToById(projKeys[i], DOMInterface.createElement('div', 'proj-control-container', 'proj-item-control' + (i + 1)))
+      DOMInterface.insertToById('proj-item-control' + (i + 1), DOMInterface.createElement('button', 'edit-btn', 'edit-' + 'proj-item-' + (i + 1)))
+      DOMInterface.insertToById('proj-item-control' + (i + 1), DOMInterface.createElement('button', 'del-btn', 'del-' + ('proj-item-' + (i + 1))))
+      document.querySelector('#' + 'del-' + ('proj-item-' + (i + 1))).addEventListener('click', deleteProject)
+      document.querySelector('#' + 'edit-' + ('proj-item-' + (i + 1))).addEventListener('click', editProject)
+    }
   }
 
   const lists = document.querySelectorAll('.nav-proj-list-item')
@@ -108,7 +116,7 @@ function showAddProjForm (event) {
   document.querySelector('#title').setAttribute('type', 'text')
   document.querySelector('#title').setAttribute('name', 'title')
   document.querySelector('#title').setAttribute('minLength', '3')
-  document.querySelector('#title').setAttribute('maxLength', '30')
+  document.querySelector('#title').setAttribute('maxLength', '12')
   document.querySelector('#title').setAttribute('placeholder', 'Enter project name...')
   document.querySelector('#title').setAttribute('required', true)
 
@@ -339,6 +347,41 @@ function deleteTask (event) {
   Storage.deleteNote(elementId.id)
 }
 
+function editProject (event) {
+  event.stopImmediatePropagation()
+
+  const projId = event.target.parentNode.parentNode
+  projId.parentNode.removeChild(projId)
+  editProjectData(projId, 'Replace')
+}
+
+function deleteProject (event) {
+  event.stopImmediatePropagation()
+
+  const projId = event.target.parentNode.parentNode
+  projId.parentNode.removeChild(projId)
+  editProjectData(projId, '')
+}
+
+function editProjectData (projId, replacement) {
+  const project = Storage.getNote('projects')
+  const projectId = projId.id
+  const taskList = TaskModule.retrieveTasksByProj(projId.textContent)
+  replacement !== '' ? project[projectId] = replacement : delete project[projectId]
+  Storage.makeNote('projects', project)
+
+  editTaskProjects(taskList, replacement)
+}
+
+function editTaskProjects (taskList, replacement) {
+  for (let obj in taskList) {
+    const object = JSON.parse(taskList[obj])
+    replacement !== '' ? object.project = replacement : object.project = 'None'
+    localStorage.setItem(obj, JSON.stringify(object))
+  }
+  location.reload()
+}
+
 function showTitle (event) {
   const parentId = event.target.parentNode.id
   const task = Storage.getNote(parentId)
@@ -349,7 +392,6 @@ function showTitle (event) {
   const dueText = document.getElementById(parentId + '-due-text')
   const control = document.getElementById(parentId + '-control-wrapper')
 
-  console.log(dueText)
   element.textContent = task.title
   prioText.classList.toggle('hide')
   dueText.classList.toggle('hide')

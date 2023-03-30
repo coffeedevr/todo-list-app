@@ -117,7 +117,10 @@ body {
 
 .nav-home-list > li:hover,
 .nav-proj-list > li:hover {
-    border-right: 20px solid rgb(108, 190, 173);
+    text-decoration: underline;
+    fill: black;
+    color: black;
+    background-color: rgb(228, 197, 130);
 }
 
 .nav-home-list-item {
@@ -132,13 +135,15 @@ body {
 
 .nav-proj-list-item {
     display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
     align-items: center;
     cursor: pointer;
     gap: 10px;
     font-family: 'Bree Serif', var(--system-ui);
-    padding: 10px 25px;
+    padding: 10px 5px 10px 25px;
+}
+
+.proj-control-container {
+    margin-left: auto;
 }
 
 #proj-nav-title > svg,
@@ -509,4 +514,9 @@ input[type="checkbox"] {
 
 .hide {
     display: none;
+}
+
+.proj-control-container {
+    display: flex;
+    gap: 5px
 }
