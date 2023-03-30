@@ -10,7 +10,7 @@ export default function loadSections () {
   const counter = 0
   const headerText = 'Todo://'
   const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
-  const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | Icons by '
+  const footerText = '© ' + new Date().getFullYear() + ' coffeedevr | '
   const addProjImg = '<svg id="add-proj-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M3,3A2,2 0 0,0 1,5V19A2,2 0 0,0 3,21H21A2,2 0 0,0 23,19V5A2,2 0 0,0 21,3H3M3,5H13V9H21V19H3V5M10,10V13H7V15H10V18H12V15H15V13H12V10H10Z" /></svg>'
   const addNote = '<svg id="add-task-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title></title><path d="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>'
 
@@ -367,7 +367,7 @@ function showDesc (event) {
   const dueText = document.getElementById(parentId + '-due-text')
   const control = document.getElementById(parentId + '-control-wrapper')
 
-  element.textContent = task.description
+  task.description.length >= 1 ? element.textContent = task.description : element.textContent = 'No description available'
   prioText.classList.toggle('hide')
   dueText.classList.toggle('hide')
   control.classList.toggle('hide')
