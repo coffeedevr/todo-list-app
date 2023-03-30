@@ -12,7 +12,8 @@ function Task (title, description, dueDate, priority, project) {
 
 const TaskModule = (() => {
   const createTask = (title, description, dueDate, priority, project) => {
-    const count = JSON.parse(localStorage.getItem('counter')) + 1
+    let count = JSON.parse(localStorage.getItem('counter'))
+    count = parseInt(count) + 1
     const note = new Task(title, description, dueDate, priority, project)
     localStorage.setItem('counter', count)
     Storage.makeNote('note' + count, note)
@@ -86,4 +87,4 @@ const TaskModule = (() => {
   return { createTask, getTask, retrieveTasks, retrieveTasksUrgent, retrieveTasksByProj, retrieveTasksDueToday, getTaskDue }
 })()
 
-export { TaskModule as default }
+export { TaskModule, Task }

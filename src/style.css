@@ -44,11 +44,11 @@ body {
 }
 
 .content-container {
-    padding: 30px;
+    padding: 30px 30px 30px 30px;
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: minmax(250px, 1fr) minmax(250px, 1fr);
-    column-gap: 30px;
+    column-gap: 25px;
 }
 
 .home-nav-wrapper {
@@ -66,7 +66,13 @@ body {
     grid-row: 2 / 2;
     grid-column: 1 / 1;
     background-color: white;
-    min-width: 250px
+    min-width: 250px;
+}
+
+.nav-proj-list {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 230px;
 }
 
 .nav-home-list, 
@@ -94,7 +100,7 @@ body {
 }
 
 #add-proj-btn:hover {
-    fill: rgb(255, 238, 0);
+    fill: rgb(255, 255, 255);
 }
 
 #container-header-text {
@@ -111,9 +117,6 @@ body {
 
 .nav-home-list > li:hover,
 .nav-proj-list > li:hover {
-    /* background-color: rgb(90, 197, 147);
-    color: rgb(0, 0, 0);
-    fill: rgb(0, 0, 0) */
     border-right: 20px solid rgb(108, 190, 173);
 }
 
@@ -140,7 +143,6 @@ body {
 
 #proj-nav-title > svg,
 .nav-home-list-item > svg {
-    display: block;
     height: 50px;
 }
 
@@ -149,6 +151,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding: 15px 20px;
 }
 
 .notes-wrapper {
@@ -171,6 +174,14 @@ body {
     grid-template-rows: 120px 200px 200px 100px 100px;
     width: 50%;
     position: relative;
+}
+
+.form-proj-container {
+    font-size: 1.5rem;
+    background-color: rgb(255, 255, 255);
+    width: 50%;
+    position: relative;
+    height: 50%;
 }
 
 #form-title {
@@ -319,7 +330,7 @@ label {
 
 #close-form-btn {
     height: 70px;
-    fill: rgb(224, 41, 41);
+    fill: rgb(228, 77, 77);
     cursor: pointer;
 }
 
@@ -328,9 +339,9 @@ label {
 }
 
 .selected {
-    background-color: black;
-    color: rgb(255, 238, 0);
-    fill: rgb(255, 238, 0);
+    background-color: rgb(49, 49, 49);
+    color: rgb(255, 255, 255);
+    fill:  rgb(255, 255, 255);
 }
 
 #no-notes-text {
@@ -402,11 +413,11 @@ label {
 }
 
 .priority {
-    border-left: 20px solid red;
+    border-left: 20px solid rgb(250, 84, 84);
 }
 
 .not-urgent {
-    border-left: 20px solid green;
+    border-left: 20px solid rgb(103, 185, 103);
 }
 
 

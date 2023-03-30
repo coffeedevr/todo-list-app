@@ -1,12 +1,12 @@
 /* eslint-disable prefer-const */
 import DOMInterface from './dom_interface.js'
 import GitHubLogo from './assets/githublogo.png'
-import TaskModule from './tasks.js'
+import { TaskModule, Task } from './tasks.js'
 import Storage from './local_storage.js'
 import { format, isBefore, parseISO } from 'date-fns'
 
 export default function loadSections () {
-  const projects = { proj_0: 'None' }
+  const projects = { proj_1: 'None' }
   const counter = 0
   const headerText = 'Todo://'
   const importFont = '<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Alkatra&family=Bree+Serif&family=Gentium+Book+Plus&family=Tilt+Neon&family=Yatra+One&display=swap" rel="stylesheet">'
@@ -28,7 +28,7 @@ export default function loadSections () {
   DOMInterface.insertTextContentById('header-title-text', headerText)
   document.querySelector('.header-title-wrapper').innerHTML += addNote
 
-  document.querySelector('#add-task-btn').addEventListener('click', showAddForm)
+  document.querySelector('#add-task-btn').addEventListener('click', (event) => showAddForm('', event))
 
   DOMInterface.insertToByClass('footer-container', DOMInterface.createElement('p', '', 'footer-text'))
   DOMInterface.insertTextContentById('footer-text', footerText)
@@ -44,7 +44,7 @@ export default function loadSections () {
   DOMInterface.insertToByClass('proj-nav', DOMInterface.createElement('div', '', 'proj-nav-title'))
   DOMInterface.insertToById('proj-nav-title', DOMInterface.createElement('h1', '', 'proj-title-text'))
   DOMInterface.insertToByClass('proj-nav', DOMInterface.createElement('ul', 'nav-proj-list', ''))
-  if (Object.keys(JSON.parse(localStorage.getItem('projects'))).length > 1) { generateProjList() }
+  if (Object.keys(JSON.parse(localStorage.getItem('projects'))).length >= 1) { generateProjList() }
   DOMInterface.insertTextContentById('home-title-text', 'Home')
   DOMInterface.insertTextContentById('proj-nav-title', 'Projects')
   document.querySelector('#proj-nav-title').innerHTML += addProjImg
@@ -53,6 +53,8 @@ export default function loadSections () {
   DOMInterface.insertToByClass('notes-wrapper', DOMInterface.createElement('div', 'container-header-wrapper', ''))
   DOMInterface.insertToByClass('container-header-wrapper', DOMInterface.createElement('h2', '', 'container-header-text'))
   DOMInterface.insertTextContentById('container-header-text', 'All Tasks')
+
+  document.querySelector('#add-proj-btn').addEventListener('click', showAddProjForm)
 }
 
 function generateHomeList () {
@@ -77,7 +79,7 @@ function generateProjList () {
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
 
-  for (let i = 1; i < projNum; i++) {
+  for (let i = 0; i < projNum; i++) {
     DOMInterface.insertToByClass('nav-proj-list', DOMInterface.createElement('li', 'nav-proj-list-item', 'proj-item-' + (i + 1)))
     DOMInterface.insertTextContentById('proj-item-' + (i + 1), projList[i])
   }
@@ -88,9 +90,40 @@ function generateProjList () {
   })
 }
 
-function showAddForm (Event) {
-  Event.stopImmediatePropagation()
+function showAddProjForm (event) {
+  event.stopImmediatePropagation()
 
+  const rmvBtn = '<svg id="close-form-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close-circle</title><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z" /></svg>'
+  document.body.appendChild(DOMInterface.createElement('div', '', 'form-wrapper'))
+  DOMInterface.insertToById('form-wrapper', DOMInterface.createElement('form', 'form-proj-container', ''))
+  DOMInterface.insertToByClass('form-proj-container', DOMInterface.createElement('div', 'form-row-1', 'form-title'))
+  DOMInterface.insertTextContentById('form-title', 'Add Project://')
+  document.querySelector('#form-title').innerHTML += rmvBtn
+
+  DOMInterface.insertToByClass('form-proj-container', DOMInterface.createElement('div', 'form-row-2', ''))
+  DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-1'))
+  document.querySelector('#label-1').setAttribute('for', 'title')
+  DOMInterface.insertTextContentById('label-1', 'Name:')
+  DOMInterface.insertToById('label-1', DOMInterface.createElement('input', 'form-controls', 'title'))
+  document.querySelector('#title').setAttribute('type', 'text')
+  document.querySelector('#title').setAttribute('name', 'title')
+  document.querySelector('#title').setAttribute('minLength', '3')
+  document.querySelector('#title').setAttribute('maxLength', '30')
+  document.querySelector('#title').setAttribute('placeholder', 'Enter project name...')
+  document.querySelector('#title').setAttribute('required', true)
+
+  DOMInterface.insertToByClass('form-proj-container', DOMInterface.createElement('div', 'form-row-5', ''))
+  DOMInterface.insertToByClass('form-row-5', DOMInterface.createElement('button', '', 'add-task-form-btn'))
+  DOMInterface.insertTextContentById('add-task-form-btn', 'Add Project')
+  document.querySelector('#add-task-form-btn').setAttribute('type', 'submit')
+  document.querySelector('#add-task-form-btn').addEventListener('click', validateProjForm)
+  document.querySelector('#close-form-btn').addEventListener('click', closeForm)
+}
+
+function showAddForm (taskID, event) {
+  event.stopImmediatePropagation()
+
+  const task = Storage.getNote(event.target.id.substr(-5))
   const projList = Object.values(JSON.parse(localStorage.getItem('projects')))
   const projNum = Object.keys(JSON.parse(localStorage.getItem('projects'))).length
   const rmvBtn = '<svg id="close-form-btn" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close-circle</title><path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z" /></svg>'
@@ -98,7 +131,7 @@ function showAddForm (Event) {
   document.body.appendChild(DOMInterface.createElement('div', '', 'form-wrapper'))
   DOMInterface.insertToById('form-wrapper', DOMInterface.createElement('form', 'form-container', ''))
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-1', 'form-title'))
-  DOMInterface.insertTextContentById('form-title', 'Add Task://')
+  event.target.id.includes('edit') ? DOMInterface.insertTextContentById('form-title', 'Edit Task://') : DOMInterface.insertTextContentById('form-title', 'Add Task://')
   document.querySelector('#form-title').innerHTML += rmvBtn
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-2', ''))
@@ -112,6 +145,7 @@ function showAddForm (Event) {
   document.querySelector('#title').setAttribute('maxLength', '30')
   document.querySelector('#title').setAttribute('placeholder', 'Enter title...')
   document.querySelector('#title').setAttribute('required', true)
+  if (event.target.id.includes('edit') === true) { document.getElementById('title').value = task.title }
 
   DOMInterface.insertToByClass('form-row-2', DOMInterface.createElement('label', '', 'label-3'))
   document.querySelector('#label-3').setAttribute('for', 'dueDate')
@@ -120,6 +154,7 @@ function showAddForm (Event) {
   document.querySelector('#dueDate').setAttribute('type', 'date')
   document.querySelector('#dueDate').setAttribute('value', format(new Date(), 'yyyy-MM-dd'))
   document.querySelector('#dueDate').setAttribute('name', 'dueDate')
+  if (event.target.id.includes('edit') === true) { document.getElementById('dueDate').value = task.dueDate }
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-3', ''))
   DOMInterface.insertToByClass('form-row-3', DOMInterface.createElement('label', '', 'label-2'))
@@ -128,10 +163,11 @@ function showAddForm (Event) {
   DOMInterface.insertTextContentById('label-2', 'Description:')
   DOMInterface.insertToById('label-2', DOMInterface.createElement('textarea', 'form-controls', 'description'))
   document.querySelector('#description').setAttribute('name', 'description')
-  document.querySelector('#description').setAttribute('placeholder', 'Enter description...')
+  document.querySelector('#description').setAttribute('placeholder', 'Enter description...  (optional)')
   document.querySelector('#description').setAttribute('rows', '5')
   document.querySelector('#description').setAttribute('cols', '20')
   document.querySelector('#description').setAttribute('maxLength', '240')
+  if (event.target.id.includes('edit') === true) { document.getElementById('description').value = task.description }
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-4', ''))
   DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-4'))
@@ -145,24 +181,26 @@ function showAddForm (Event) {
   DOMInterface.insertToById('priority', DOMInterface.createElement('option', '', 'prio-option-2'))
   document.querySelector('#prio-option-2').setAttribute('value', 'Urgent')
   document.querySelector('#prio-option-2').textContent = 'Urgent'
+  if (event.target.id.includes('edit') === true) { document.getElementById('priority').value = task.priority }
 
   DOMInterface.insertToByClass('form-row-4', DOMInterface.createElement('label', '', 'label-5'))
   document.querySelector('#label-5').setAttribute('for', 'project')
   DOMInterface.insertTextContentById('label-5', 'Project:')
   DOMInterface.insertToById('label-5', DOMInterface.createElement('select', 'form-controls', 'project'))
   document.querySelector('#priority').setAttribute('name', 'project')
+  if (event.target.id.includes('edit') === true) { document.getElementById('project').value = task.project }
 
   for (let i = 0; i < projNum; i++) {
-    DOMInterface.insertToById('project', DOMInterface.createElement('option', '', 'option-' + i))
-    document.querySelector('#option-' + i).setAttribute('value', projList[i])
-    document.querySelector('#option-' + i).textContent = projList[i]
+    DOMInterface.insertToById('project', DOMInterface.createElement('option', '', 'proj-option-' + i))
+    document.querySelector('#proj-option-' + i).setAttribute('value', projList[i])
+    document.querySelector('#proj-option-' + i).textContent = projList[i]
   }
 
   DOMInterface.insertToByClass('form-container', DOMInterface.createElement('div', 'form-row-5', ''))
   DOMInterface.insertToByClass('form-row-5', DOMInterface.createElement('button', '', 'add-task-form-btn'))
   DOMInterface.insertTextContentById('add-task-form-btn', 'Add Task')
   document.querySelector('#add-task-form-btn').setAttribute('type', 'submit')
-  document.querySelector('#add-task-form-btn').addEventListener('click', validateForm)
+  document.querySelector('#add-task-form-btn').addEventListener('click', () => validateForm(taskID))
   document.querySelector('#close-form-btn').addEventListener('click', closeForm)
 
   const title = document.querySelector('#title')
@@ -188,27 +226,46 @@ function showAddForm (Event) {
   })
 }
 
+function addProj (name) {
+  const projs = Storage.getNote('projects')
+  const projsIndex = 'proj_' + Object.keys(projs).length + 1
+  projs[projsIndex] = name
+  localStorage.setItem('projects', JSON.stringify(projs))
+}
+
 function closeForm () {
   document.body.removeChild(document.body.lastChild)
 }
 
-function validateForm () {
+function validateProjForm () {
+  const title = document.querySelector('#title')
+  if (title.value.length < 3) { return }
+
+  addProj(title.value)
+}
+
+function validateForm (taskID) {
   const title = document.querySelector('#title')
   const dueDate = document.querySelector('#dueDate')
   const res = isBefore(parseISO(dueDate.value), parseISO(format(new Date(), 'yyyy-MM-dd')))
 
   if (title.value.length < 3 || res === true) { return }
-  addTaskEvent()
+  addTaskEvent(taskID)
 }
 
-function addTaskEvent () {
+function addTaskEvent (taskID) {
   const title = document.querySelector('#title')
   const dueDate = document.querySelector('#dueDate')
   const prio = document.querySelector('#priority')
   const proj = document.querySelector('#project')
   const desc = document.querySelector('#description')
 
-  TaskModule.createTask(title.value, desc.value, dueDate.value, prio.value, proj.value)
+  if (taskID.includes('note') === true) {
+    const note = new Task(title.value, desc.value, dueDate.value, prio.value, proj.value)
+    localStorage.setItem(taskID, JSON.stringify(note))
+  } else {
+    TaskModule.createTask(title.value, desc.value, dueDate.value, prio.value, proj.value)
+  }
 }
 
 function loadTasks (event) {
@@ -230,6 +287,7 @@ function loadTasks (event) {
       createTasksDOM(TaskModule.retrieveTasksUrgent())
       break
     default:
+      element.removeChild(element.lastElementChild)
       createTasksDOM(TaskModule.retrieveTasksByProj(text))
   }
 }
@@ -269,6 +327,7 @@ function createTasksDOM (tasks) {
     document.querySelector('#' + 'edit-' + taskList[obj]).addEventListener('click', editTask)
     DOMInterface.insertToById(taskList[obj] + '-control-wrapper', DOMInterface.createElement('button', 'del-btn', 'del-' + taskList[obj]))
     document.querySelector('#' + 'del-' + taskList[obj]).addEventListener('click', deleteTask)
+    document.querySelector('#' + 'edit-' + taskList[obj]).addEventListener('click', (event) => showAddForm(taskList[obj], event))
     loadCheckBox(Storage.getNote(taskList[obj]), taskList[obj])
   }
 }
@@ -281,7 +340,6 @@ function deleteTask (event) {
 
 function editTask (event) {
   const elementId = event.target.parentNode.parentNode
-  console.log(event)
 }
 
 function crossTask (event) {
